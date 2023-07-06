@@ -1,0 +1,46 @@
+from flask import Flask, request
+
+app = Flask(__name__)
+
+# Database to store user details and account balances
+users = {
+    '+1234567890': {
+        'name': 'John Doe',
+        'balance': 1000
+    },
+    '+9876543210': {
+        'name': 'Jane Smith',
+        'balance': 500
+    },
+    '+254700424067': {  # Placeholder phone number
+        'name': 'Your Name',
+        'balance': 0
+    }
+}
+
+# Receive Money
+@app.route('/receive_money', methods=['POST'])
+def receive_money():
+    recipient_number = request.form['recipient_number']
+    sender_number = request.form['sender_number']
+    amount = float(request.form['amount'])
+
+    if recipient_number not in users:
+        return 'Recipient number not found'
+
+    if sender_number not in users:
+        return 'Sender number not found'
+
+    recipient = users[recipient_number]
+    sender = users[sender_number]
+
+    if sender['balance'] < amount:
+        return 'Insufficient balance'
+
+    sender['balance'] -= amount
+    recipient['balance'] += amount
+
+    return 'Money received successfully'
+
+if __name__ == '__main__':
+    app.run()
